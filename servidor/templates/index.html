@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OFSC ETL — Panel</title>
+<style>
+:root{--rojo:#da1f2c;--azul:#1a237e;--verde:#2e7d32;--naranja:#e65100;--gris:#f4f6fa;--borde:#e0e0e0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:var(--gris);color:#222}
+header{background:var(--rojo);color:#fff;padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+header h1{font-size:1.15rem;font-weight:700}
+header .sub{font-size:.78rem;opacity:.85}
+.container{max-width:1100px;margin:0 auto;padding:24px 16px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.card{background:#fff;border-radius:10px;padding:20px 24px;box-shadow:0 2px 8px rgba(0,0,0,.07);border-left:4px solid var(--azul)}
+.card.verde{border-left-color:var(--verde)}.card.rojo{border-left-color:var(--rojo)}.card.naranja{border-left-color:var(--naranja)}
+.card h2{font-size:2rem;color:var(--azul);font-weight:700}.card.verde h2{color:var(--verde)}.card.rojo h2{color:var(--rojo)}.card.naranja h2{color:var(--naranja)}
+.card p{font-size:.8rem;color:#666;margin-top:4px}
+.panel{background:#fff;border-radius:10px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:24px}
+.panel h3{font-size:1rem;font-weight:700;color:var(--azul);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--gris)}
+.cookie-estado{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:8px;margin-bottom:20px;background:var(--gris)}
+.dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.dot.ok{background:#43a047;box-shadow:0 0 0 3px rgba(67,160,71,.25)}
+.dot.warn{background:#fb8c00;box-shadow:0 0 0 3px rgba(251,140,0,.25)}
+.dot.error{background:#e53935}.dot.busy{background:var(--naranja);animation:pulso 1s infinite}
+@keyframes pulso{0%,100%{opacity:1}50%{opacity:.4}}
+.ci-info strong{font-size:.9rem}.ci-info small{display:block;color:#888;font-size:.75rem;margin-top:2px}
+.instruccion{background:#e3f2fd;border-left:4px solid #1e88e5;padding:10px 14px;border-radius:0 6px 6px 0;font-size:.83rem;color:#1565c0;margin-bottom:16px;display:none}
+.tab-group{display:flex;gap:0;margin-bottom:16px}
+.tab{padding:7px 16px;font-size:.82rem;cursor:pointer;border:1px solid var(--borde);background:var(--gris);color:#555;transition:all .15s}
+.tab:first-child{border-radius:6px 0 0 6px}.tab:last-child{border-radius:0 6px 6px 0;border-left:none}
+.tab.active{background:var(--azul);color:#fff;border-color:var(--azul)}
+.controles{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:.78rem;color:#555;font-weight:700}
+input[type="date"]{padding:8px 12px;border:1px solid var(--borde);border-radius:6px;font-size:.9rem;background:#fff}
+#btn-iniciar{padding:10px 28px;background:var(--rojo);color:#fff;border:none;border-radius:8px;font-size:.95rem;font-weight:700;cursor:pointer;transition:background .2s;display:flex;align-items:center;gap:8px}
+#btn-iniciar:hover:not(:disabled){background:#b71c1c}
+#btn-iniciar:disabled{background:#aaa;cursor:not-allowed}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+#msg{margin-top:12px;padding:10px 14px;border-radius:6px;font-size:.88rem;display:none}
+#msg.ok{background:#e8f5e9;color:#2e7d32;border-left:3px solid #43a047}
+#msg.error{background:#ffebee;color:#c62828;border-left:3px solid #e53935}
+#msg.info{background:#e3f2fd;color:#1565c0;border-left:3px solid #1e88e5}
+#log-box{background:#1e1e1e;color:#a5d6a7;font-family:monospace;font-size:.76rem;padding:12px;border-radius:6px;max-height:200px;overflow-y:auto;margin-top:12px;display:none;white-space:pre-wrap;line-height:1.5}
+.tabla-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+thead th{background:var(--azul);color:#fff;padding:11px 14px;text-align:left;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--borde);transition:background .1s}
+tbody tr:hover{background:#f0f4ff}
+tbody td{padding:10px 14px}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.75rem;font-weight:700}
+.badge-dia{background:#e3f2fd;color:#1565c0}.badge-sab{background:#f3e5f5;color:#6a1b9a}
+.pct-bar{position:relative;height:18px;background:#eee;border-radius:4px;min-width:80px}
+.pct-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#43a047,#66bb6a)}
+.pct-fill.medio{background:linear-gradient(90deg,#fb8c00,#ffa726)}
+.pct-fill.alto{background:linear-gradient(90deg,#e53935,#ef5350)}
+.pct-label{position:absolute;right:6px;top:1px;font-size:.72rem;font-weight:700;color:#333}
+footer{text-align:center;padding:20px;font-size:.75rem;color:#aaa}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>📊 OFSC ETL — Panel de Control</h1>
+  <div class="sub">Región Occidente · Claro Colombia · 186.147.60.119:3309</div></div>
+  <div style="font-size:.8rem;opacity:.8" id="hora-actual"></div>
+</header>
+<div class="container">
+  <div class="cards">
+    <div class="card"><h2 id="c-dias">—</h2><p>Días cargados</p></div>
+    <div class="card verde"><h2 id="c-registros">—</h2><p>Total registros</p></div>
+    <div class="card naranja"><h2 id="c-rango">—</h2><p>Rango de datos</p></div>
+    <div class="card rojo"><h2 id="c-ultima">—</h2><p>Última carga</p></div>
+  </div>
+  <div class="panel">
+    <h3>🚀 Ejecutar Carga OFSC</h3>
+    <div class="cookie-estado" id="cookie-box">
+      <div class="dot error" id="cookie-dot"></div>
+      <div class="ci-info">
+        <strong id="cookie-texto">Verificando sesión...</strong>
+        <small id="cookie-detalle"></small>
+      </div>
+    </div>
+    <div class="instruccion" id="instruccion-cookies">
+      <b>⚠ Necesitas exportar tu sesión:</b>
+      1. Abre OFSC en Edge con sesión activa<br>
+      2. Ejecuta <code>exportar_cookies.bat</code> en tu PC<br>
+      3. Recarga esta página
+    </div>
+    <div class="tab-group">
+      <div class="tab active" id="tab-ayer" onclick="setModo('ayer')">Día anterior</div>
+      <div class="tab" id="tab-fecha" onclick="setModo('fecha')">Fecha específica</div>
+      <div class="tab" id="tab-rango" onclick="setModo('rango')">Rango de fechas</div>
+    </div>
+    <div class="controles">
+      <div id="ctrl-fecha" style="display:none" class="form-group">
+        <label>Fecha</label><input type="date" id="inp-fecha">
+      </div>
+      <div id="ctrl-rango" style="display:none;gap:8px;align-items:flex-end" class="controles">
+        <div class="form-group"><label>Desde</label><input type="date" id="inp-desde"></div>
+        <div class="form-group"><label>Hasta</label><input type="date" id="inp-hasta"></div>
+      </div>
+      <button id="btn-iniciar" onclick="iniciarCarga()">
+        <div class="spinner" id="spinner"></div>
+        <span id="btn-texto">▶ Iniciar carga</span>
+      </button>
+    </div>
+    <div id="msg"></div>
+    <div id="log-box"></div>
+  </div>
+  <div class="panel">
+    <h3>📅 Historial de Cargas</h3>
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>Fecha</th><th>Día</th><th>Registros</th><th>Open</th><th>Close</th><th>Uso promedio</th><th>Cargado el</th></tr></thead>
+        <tbody id="tbody"><tr><td colspan="7" style="text-align:center;padding:30px;color:#999">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<footer>OFSC ETL · 186.147.60.119:8090</footer>
+<script>
+setInterval(()=>{document.getElementById('hora-actual').textContent=new Date().toLocaleString('es-CO',{dateStyle:'medium',timeStyle:'short'});},1000);
+let modo='ayer';
+function setModo(m){modo=m;['ayer','fecha','rango'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('active',x===m));document.getElementById('ctrl-fecha').style.display=m==='fecha'?'flex':'none';document.getElementById('ctrl-rango').style.display=m==='rango'?'flex':'none';}
+async function actualizarEstado(){
+  try{
+    const d=await fetch('/api/estado').then(r=>r.json());
+    const dot=document.getElementById('cookie-dot'),txt=document.getElementById('cookie-texto'),det=document.getElementById('cookie-detalle'),btn=document.getElementById('btn-iniciar'),inst=document.getElementById('instruccion-cookies'),lb=document.getElementById('log-box');
+    if(d.en_ejecucion){dot.className='dot busy';txt.textContent='⏳ Carga en ejecución...';det.textContent='Chrome headless navegando OFSC';btn.disabled=true;document.getElementById('spinner').style.display='block';document.getElementById('btn-texto').textContent='Ejecutando...';inst.style.display='none';if(d.ultimo_log){lb.style.display='block';lb.textContent=d.ultimo_log;lb.scrollTop=lb.scrollHeight;}}
+    else{document.getElementById('spinner').style.display='none';document.getElementById('btn-texto').textContent='▶ Iniciar carga';if(d.ultimo_log){lb.style.display='block';lb.textContent=d.ultimo_log;lb.scrollTop=lb.scrollHeight;}
+    if(d.cookies_ok){const vieja=d.cookies_edad_min!==null&&d.cookies_edad_min>480;dot.className=vieja?'dot warn':'dot ok';txt.textContent=vieja?'⚠ Sesión antigua — re-exporta cookies':'✅ Sesión de OFSC lista';det.textContent=d.cookies_ts?`Exportadas: ${d.cookies_ts.slice(0,16).replace('T',' ')} (hace ${d.cookies_edad_min} min)`:'';inst.style.display=vieja?'block':'none';btn.disabled=false;}
+    else{dot.className='dot error';txt.textContent='🔴 Sin sesión — ejecuta exportar_cookies.bat';det.textContent='Ejecuta exportar_cookies.bat en tu PC primero';inst.style.display='block';btn.disabled=true;}
+    if(d.ultimo_resultado==='ok'&&!d.en_ejecucion){mostrarMsg('✅ Carga completada','ok');cargarResumen();cargarHistorial();}
+    else if(d.ultimo_resultado==='error'&&!d.en_ejecucion){mostrarMsg('❌ Error — revisa el log','error');}
+    }
+  }catch(e){}
+}
+setInterval(actualizarEstado,4000);actualizarEstado();
+async function iniciarCarga(){
+  const btn=document.getElementById('btn-iniciar');btn.disabled=true;
+  let payload={};
+  if(modo==='fecha'){const f=document.getElementById('inp-fecha').value;if(!f){mostrarMsg('Selecciona una fecha','error');btn.disabled=false;return;}payload.fecha=f;}
+  else if(modo==='rango'){const d=document.getElementById('inp-desde').value,h=document.getElementById('inp-hasta').value;if(!d||!h){mostrarMsg('Selecciona el rango','error');btn.disabled=false;return;}payload.desde=d;payload.hasta=h;}
+  mostrarMsg('Iniciando...','info');
+  try{const r=await fetch('/api/iniciar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await r.json();
+  if(r.ok){mostrarMsg('✅ '+data.mensaje,'ok');document.getElementById('log-box').style.display='block';document.getElementById('log-box').textContent='Iniciando Chrome headless...';}
+  else{mostrarMsg('❌ '+data.error,'error');btn.disabled=false;}}
+  catch(e){mostrarMsg('❌ Error: '+e.message,'error');btn.disabled=false;}
+}
+function mostrarMsg(txt,tipo){const el=document.getElementById('msg');el.textContent=txt;el.className=tipo;el.style.display='block';}
+async function cargarResumen(){try{const d=await fetch('/api/resumen').then(r=>r.json());if(d.error)return;document.getElementById('c-dias').textContent=d.dias_cargados??'—';document.getElementById('c-registros').textContent=Number(d.total_registros).toLocaleString('es-CO');document.getElementById('c-rango').textContent=d.desde&&d.hasta?`${d.desde} → ${d.hasta}`:'—';document.getElementById('c-ultima').textContent=d.ultima_carga?d.ultima_carga.slice(0,16):'—';}catch(e){}}
+const DIAS={'Monday':'Lun','Tuesday':'Mar','Wednesday':'Mié','Thursday':'Jue','Friday':'Vie','Saturday':'Sáb'};
+async function cargarHistorial(){try{const datos=await fetch('/api/historial').then(r=>r.json());const tbody=document.getElementById('tbody');if(!datos.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">Sin datos aún</td></tr>';return;}tbody.innerHTML=datos.map(row=>{const dia=DIAS[row.dia_semana]||row.dia_semana;const esSab=row.dia_semana==='Saturday';const pct=parseFloat(row.avg_used_pct)||0;const color=pct>=80?'alto':pct>=50?'medio':'';return`<tr><td><b>${row.fecha}</b></td><td><span class="badge ${esSab?'badge-sab':'badge-dia'}">${dia}</span></td><td>${Number(row.total_registros).toLocaleString('es-CO')}</td><td style="color:#2e7d32;font-weight:700">${row.franjas_open??0}</td><td style="color:#c62828">${row.franjas_close??0}</td><td><div class="pct-bar"><div class="pct-fill ${color}" style="width:${Math.min(pct,100)}%"></div><span class="pct-label">${pct}%</span></div></td><td style="font-size:.78rem;color:#888">${row.ultima_carga.slice(0,16)}</td></tr>`;}).join('');}catch(e){}}
+cargarResumen();cargarHistorial();
+setInterval(()=>{cargarResumen();cargarHistorial();},30000);
+</script>
+</body>
+</html>

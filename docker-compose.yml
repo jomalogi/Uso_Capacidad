@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+
+  ofsc_cupos_db:
+    image: mysql:8.0
+    container_name: ofsc_cupos_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "Capacidades*"
+      MYSQL_DATABASE: ofsc_cupos
+      MYSQL_USER: ofsc_user
+      MYSQL_PASSWORD: "Capacidades*"
+    ports:
+      - "3309:3306"
+    volumes:
+      - ofsc_cupos_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD","mysqladmin","ping","-h","localhost","-u","ofsc_user","-pCapacidades*"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ofsc_web:
+    build: ./servidor
+    container_name: ofsc_web
+    restart: always
+    ports:
+      - "8090:8090"
+    environment:
+      DB_HOST: ofsc_cupos_db
+      DB_PORT: 3306
+      DB_NAME: ofsc_cupos
+      DB_USER: ofsc_user
+      DB_PASS: "Capacidades*"
+      AGENTE_SECRET: "ofsc_secret_2024"
+    volumes:
+      - ofsc_tmp:/tmp
+    depends_on:
+      ofsc_cupos_db:
+        condition: service_healthy
+    shm_size: '256mb'
+
+volumes:
+  ofsc_cupos_data:
+  ofsc_tmp:
