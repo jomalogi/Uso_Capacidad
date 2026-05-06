@@ -100,10 +100,10 @@ TABLA_FTTH = pd.DataFrame([
 ], columns=["Categoria","Territorio","Meta_Modernizacion","Ciudad_tiene_FTTH"])
 
 FRANJAS_MAP = {
-    "07-13":"A.M","13-18":"P.M","07-18":"A.M","14-20":"P.M","18:00-20:30":"P.M",
-    "07-10":"A.M","01-06":"A.M","06-10":"A.M","07-09":"A.M","08-10":"A.M",
-    "09-11":"A.M","10-13":"A.M","11-13":"A.M","14-16":"P.M","14-17":"P.M",
-    "16-18":"P.M","17-19":"P.M","18-22":"P.M",
+    "07-13":"AM","13-18":"PM","07-18":"ALL DAY","14-20":"PM","18:00-20:30":"PM",
+    "07-10":"AM","01-06":"AM","06-10":"AM","07-09":"AM","08-10":"AM",
+    "09-11":"AM","10-13":"AM","11-13":"AM","14-16":"PM","14-17":"PM",
+    "16-18":"PM","17-19":"PM","18-22":"PM",
 }
 
 # ── CARGA ─────────────────────────────────────────────────────────────────────
@@ -270,7 +270,7 @@ with st.sidebar:
 
     st.markdown("**⏰ Franja**")
     franja_sel = st.multiselect("Franja",
-        options=sorted(df["franja_horaria"].dropna().unique()),
+        options=["AM","PM","ALL DAY"],
         default=[], placeholder="Todas", label_visibility="collapsed")
 
     st.markdown("**🤝 Aliado**")
@@ -299,7 +299,7 @@ with st.sidebar:
 mask = df["fecha"].dt.date.isin(fechas_sel)
 if red_sel:        mask &= df["Red"].isin(red_sel)
 if ciudad_sel:     mask &= df["zona"].isin(ciudad_sel)
-if franja_sel:     mask &= df["franja_horaria"].isin(franja_sel)
+if franja_sel:     mask &= df["Franja_H"].isin(franja_sel)
 if aliado_sel:     mask &= df["Aliado_Final"].isin(aliado_sel)
 if territorio_sel: mask &= df["Gerencia"].isin(territorio_sel)
 dff = df[mask].copy()
