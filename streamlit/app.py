@@ -286,11 +286,7 @@ with st.sidebar:
     uso_menor_50 = st.checkbox("Mostrar solo ciudades < 50%", value=False)
 
     st.markdown("---")
-    if ultima_actualizacion:
-        COT = timezone(timedelta(hours=-5))
-        ua_cot = ultima_actualizacion.replace(tzinfo=timezone.utc).astimezone(COT)
-        st.caption(f"🕐 Actualizado: {ua_cot.strftime('%Y-%m-%d %H:%M')} (COT)")
-    st.caption(f"📅 Última carga: {df['fecha'].max().strftime('%Y-%m-%d')}")
+
 
     with st.expander("🔧 Diagnóstico BD", expanded=False):
         cols_ok = [c for c in raw.columns if raw[c].notna().sum()>0]
@@ -465,7 +461,7 @@ def render_pagina(df_full, titulo, filtro_extra=None, aplicar_filtro_uso=False):
         style="background:#000000;color:#ffffff;text-align:center;
                padding:10px;font-size:.95rem;font-weight:700;
                letter-spacing:.05em;border:1px solid #333">
-        USO DE LA CAPACIDAD EN CUPOS - R3 — {titulo.upper()}
+        {titulo.upper()}
     </th>'''
 
     # Fila 2: Fecha/Gerencia + bloques de fechas + Total
@@ -566,6 +562,42 @@ function tog(id){{
 
     components.html(html, height=altura, scrolling=True)
 
+
+# ── ENCABEZADO ESTÉTICO (MAIN AREA) ───────────────────────────────────────────
+ua_cot_str = "N/A"
+if ultima_actualizacion:
+    COT = timezone(timedelta(hours=-5))
+    ua_cot = ultima_actualizacion.replace(tzinfo=timezone.utc).astimezone(COT)
+    ua_cot_str = ua_cot.strftime('%Y-%m-%d %H:%M')
+
+ultima_carga_str = df['fecha'].max().strftime('%Y-%m-%d') if not df.empty else "N/A"
+
+header_html = f"""
+<div style="
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    padding: 18px 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    border: 1px solid #eaeaea;
+    border-left: 6px solid #e61c24;
+    margin-bottom: 20px;
+">
+    <h1 style="margin: 0; font-size: 1.8rem; font-weight: 800; color: #1a1816; letter-spacing: -0.5px;">
+        USO DE LA CAPACIDAD EN CUPOS <span style="color: #e61c24;">- R3</span>
+    </h1>
+    <div style="display: flex; align-items: center; gap: 12px; background: #f8f9fa; padding: 10px 18px; border-radius: 8px; border: 1px solid #e9ecef;">
+        <span style="font-size: 1.4rem;">⏱️</span>
+        <div style="color: #495057; font-size: 0.85rem; line-height: 1.3;">
+            <div style="font-weight: 600;">Actualizado: <span style="font-weight: 400;">{ua_cot_str} (COT)</span></div>
+            <div style="font-weight: 600;">Última carga: <span style="font-weight: 400; color: #6c757d;">{ultima_carga_str}</span></div>
+        </div>
+    </div>
+</div>
+"""
+st.markdown(header_html, unsafe_allow_html=True)
 
 # ── TABS ──────────────────────────────────────────────────────────────────────
 paginas = ["Meta Modernización","Instalaciones FTTH","Instalaciones HFC",
