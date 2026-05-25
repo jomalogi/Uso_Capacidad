@@ -307,13 +307,6 @@ if aliado_sel:     mask &= df["Aliado_Final"].isin(aliado_sel)
 if territorio_sel: mask &= df["Gerencia"].isin(territorio_sel)
 dff = df[mask].copy()
 
-if uso_menor_50:
-    uso_ciudad = dff.groupby("zona")[["Cupos_Usados", "Cupos_Abiertos"]].sum()
-    uso_ciudad["Uso"] = np.where(uso_ciudad["Cupos_Abiertos"] > 0,
-                                 uso_ciudad["Cupos_Usados"] / uso_ciudad["Cupos_Abiertos"], 0)
-    ciudades_filtradas = uso_ciudad[uso_ciudad["Uso"] < 0.5].index
-    dff = dff[dff["zona"].isin(ciudades_filtradas)]
-
 # ── FILTROS POR PÁGINA (del PBIX) ────────────────────────────────────────────
 FILTROS_PAGINA = {
     "Meta Modernización": {
@@ -384,7 +377,7 @@ def barra_uso(u):
             f'</div>')
 
 # ── RENDER ────────────────────────────────────────────────────────────────────
-def render_pagina(df_full, titulo, filtro_extra=None):
+def render_pagina(df_full, titulo, filtro_extra=None, aplicar_filtro_uso=False):
     d = df_full.copy()
 
     if filtro_extra:
@@ -395,6 +388,13 @@ def render_pagina(df_full, titulo, filtro_extra=None):
                 d = d[d[col].isin(val)]
             else:
                 d = d[d[col] == val]
+
+    if aplicar_filtro_uso:
+        uso_ciudad = d.groupby("zona")[["Cupos_Usados", "Cupos_Abiertos"]].sum()
+        uso_ciudad["Uso"] = np.where(uso_ciudad["Cupos_Abiertos"] > 0,
+                                     uso_ciudad["Cupos_Usados"] / uso_ciudad["Cupos_Abiertos"], 0)
+        ciudades_filtradas = uso_ciudad[uso_ciudad["Uso"] < 0.5].index
+        d = d[d["zona"].isin(ciudades_filtradas)]
 
     fechas = sorted(d["fecha"].dt.date.unique())
 
@@ -606,7 +606,7 @@ for tab, pag in zip(tabs, paginas):
 
             # Aplicar filtro
             dff_tt = dff[dff["categoria"].isin(cats_sel)].copy() if cats_sel else dff.copy()
-            render_pagina(dff_tt, "Total Trabajos", None)
+            render_pagina(dff_tt, "Total Trabajos", None, aplicar_filtro_uso=uso_menor_50)
         else:
             filtro = FILTROS_PAGINA.get(pag, {})
-            render_pagina(dff, pag, filtro or None)
+            render_pagina(dff, pag, filtro or None, aplicar_filtro_uso=uso_menor_50)
