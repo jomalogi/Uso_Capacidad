@@ -282,6 +282,9 @@ with st.sidebar:
         options=sorted(df["Gerencia"].dropna().unique()),
         default=[], placeholder="Todos", label_visibility="collapsed")
 
+    st.markdown("**⚠️ Uso Capacidad**")
+    uso_menor_50 = st.checkbox("Mostrar solo ciudades < 50%", value=False)
+
     st.markdown("---")
     if ultima_actualizacion:
         COT = timezone(timedelta(hours=-5))
@@ -303,6 +306,13 @@ if franja_sel:     mask &= df["Franja_H"].isin(franja_sel)
 if aliado_sel:     mask &= df["Aliado_Final"].isin(aliado_sel)
 if territorio_sel: mask &= df["Gerencia"].isin(territorio_sel)
 dff = df[mask].copy()
+
+if uso_menor_50:
+    uso_ciudad = dff.groupby("zona")[["Cupos_Usados", "Cupos_Abiertos"]].sum()
+    uso_ciudad["Uso"] = np.where(uso_ciudad["Cupos_Abiertos"] > 0,
+                                 uso_ciudad["Cupos_Usados"] / uso_ciudad["Cupos_Abiertos"], 0)
+    ciudades_filtradas = uso_ciudad[uso_ciudad["Uso"] < 0.5].index
+    dff = dff[dff["zona"].isin(ciudades_filtradas)]
 
 # ── FILTROS POR PÁGINA (del PBIX) ────────────────────────────────────────────
 FILTROS_PAGINA = {
