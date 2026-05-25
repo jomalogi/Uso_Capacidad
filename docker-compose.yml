@@ -43,6 +43,18 @@ services:
         condition: service_healthy
     shm_size: '256mb'
 
+  streamlit_ofsc:
+    build: ./streamlit
+    container_name: streamlit_ofsc
+    restart: always
+    ports:
+      - "8501:8501"
+    depends_on:
+      ofsc_cupos_db:
+        condition: service_healthy
+
 volumes:
   ofsc_cupos_data:
+    name: ofsc_v2_ofsc_cupos_data
+    external: true
   ofsc_tmp:
