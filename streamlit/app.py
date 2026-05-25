@@ -9,7 +9,7 @@ warnings.filterwarnings('ignore')
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="Uso Capacidad — Región Occidente",
+    page_title="Capacidades — R3",
     page_icon="🔴",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -222,7 +222,7 @@ def fmt_mes(s):
 
 # ── SIDEBAR ────────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### 🔴 OFSC ETL")
+    st.markdown("### 🔴 CAPACIDADES - R3")
     st.markdown("**Región Occidente · Claro**")
     st.markdown("---")
 
@@ -465,7 +465,7 @@ def render_pagina(df_full, titulo, filtro_extra=None, aplicar_filtro_uso=False):
         style="background:#000000;color:#ffffff;text-align:center;
                padding:10px;font-size:.95rem;font-weight:700;
                letter-spacing:.05em;border:1px solid #333">
-        USO DE CAPACIDAD EN CUPOS — {titulo.upper()}
+        USO DE LA CAPACIDAD EN CUPOS - R3 — {titulo.upper()}
     </th>'''
 
     # Fila 2: Fecha/Gerencia + bloques de fechas + Total
