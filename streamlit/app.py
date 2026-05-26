@@ -81,7 +81,7 @@ TABLA_FTTH = pd.DataFrame([
     ("Guamo CONECTAR",               "TOLHUCA", "No","Si"),
     ("Ibague CONECTAR",              "TOLHUCA", "Si","Si"),
     ("Ipiales CICSA",                "VACANA",  "No","Si"),
-    ("Jamundi CICSA",                "CALI",    "No","Si"),
+    ("Jamundi CICSA",                "CALI",    "Si","Si"),
     ("La Union CONECTAR",            "VACANA",  "No","Si"),
     ("Melgar CONECTAR",              "TOLHUCA", "No","No"),
     ("Neiva CICSA",                  "TOLHUCA", "Si","Si"),
