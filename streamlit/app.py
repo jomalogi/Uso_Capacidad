@@ -176,8 +176,14 @@ def enriquecer(df):
     libres_calc = np.where((mt > 0) & qm.notna(), (qm - used_mins) / mt, 0)
     df["Cupos_Libres"]   = np.maximum(np.round(libres_calc), 0)
     
-    df["Uso_Cap"]        = np.where(df["Cupos_Abiertos"]>0,
-                                     df["Cupos_Usados"]/df["Cupos_Abiertos"], 0)
+    # Nueva fórmula de Uso Capacidad: used / quota_mins (redondeado, mínimo 0)
+    uso_cap_calc = np.where(qm > 0, used_mins / qm, 0)
+    df["Uso_Cap"] = np.maximum(np.round(uso_cap_calc, 2), 0)
+    
+    # Guardamos estas columnas para poder agregarlas dinámicamente
+    df["used_mins"] = used_mins
+    df["quota_mins_num"] = qm
+    
     df["fecha"]          = pd.to_datetime(df["fecha"])
     return df
 
@@ -391,9 +397,9 @@ def render_pagina(df_full, titulo, filtro_extra=None, aplicar_filtro_uso=False):
                 d = d[d[col] == val]
 
     if aplicar_filtro_uso:
-        uso_ciudad = d.groupby("zona")[["Cupos_Usados", "Cupos_Abiertos"]].sum()
-        uso_ciudad["Uso"] = np.where(uso_ciudad["Cupos_Abiertos"] > 0,
-                                     uso_ciudad["Cupos_Usados"] / uso_ciudad["Cupos_Abiertos"], 0)
+        uso_ciudad = d.groupby("zona")[["used_mins", "quota_mins_num"]].sum()
+        uso_ciudad["Uso"] = np.where(uso_ciudad["quota_mins_num"] > 0,
+                                     uso_ciudad["used_mins"] / uso_ciudad["quota_mins_num"], 0)
         ciudades_filtradas = uso_ciudad[uso_ciudad["Uso"] < 0.5].index
         d = d[d["zona"].isin(ciudades_filtradas)]
 
@@ -407,18 +413,20 @@ def render_pagina(df_full, titulo, filtro_extra=None, aplicar_filtro_uso=False):
         Ab=("Cupos_Abiertos","sum"),
         Us=("Cupos_Usados","sum"),
         Li=("Cupos_Libres","sum"),
+        UM=("used_mins","sum"),
+        QM=("quota_mins_num","sum"),
     )
     agg["fd"] = agg["fecha"].dt.date
 
     ger_agg = agg.groupby(["Gerencia","fd"], as_index=False).agg(
-        Ab=("Ab","sum"), Us=("Us","sum"), Li=("Li","sum"))
+        Ab=("Ab","sum"), Us=("Us","sum"), Li=("Li","sum"), UM=("UM","sum"), QM=("QM","sum"))
     ciu_agg = agg.groupby(["Gerencia","zona","fd"], as_index=False).agg(
-        Ab=("Ab","sum"), Us=("Us","sum"), Li=("Li","sum"))
+        Ab=("Ab","sum"), Us=("Us","sum"), Li=("Li","sum"), UM=("UM","sum"), QM=("QM","sum"))
     tot_agg = agg.groupby("fd", as_index=False).agg(
-        Ab=("Ab","sum"), Us=("Us","sum"), Li=("Li","sum"))
+        Ab=("Ab","sum"), Us=("Us","sum"), Li=("Li","sum"), UM=("UM","sum"), QM=("QM","sum"))
 
     def get_met(src, keys):
-        data = []; ta=tu=tl=0
+        data = []; ta=tu=tl=0; tum=tqm=0
         for f in fechas:
             s = src.copy()
             for k,v in keys.items(): s = s[s[k]==v]
@@ -426,9 +434,14 @@ def render_pagina(df_full, titulo, filtro_extra=None, aplicar_filtro_uso=False):
             if s.empty: data.append((0,0,0,0))
             else:
                 a=s["Ab"].sum(); u=s["Us"].sum(); l=s["Li"].sum()
-                data.append((a,u,l, u/a if a>0 else 0))
-                ta+=a; tu+=u; tl+=l
-        data.append((ta,tu,tl, tu/ta if ta>0 else 0))
+                um=s["UM"].sum(); qm=s["QM"].sum()
+                uso = round(um / qm, 2) if qm > 0 else 0
+                if uso < 0: uso = 0
+                data.append((a,u,l, uso))
+                ta+=a; tu+=u; tl+=l; tum+=um; tqm+=qm
+        uso_tot = round(tum / tqm, 2) if tqm > 0 else 0
+        if uso_tot < 0: uso_tot = 0
+        data.append((ta,tu,tl, uso_tot))
         return data
 
     def libres_icon(l):
@@ -517,14 +530,21 @@ def render_pagina(df_full, titulo, filtro_extra=None, aplicar_filtro_uso=False):
                      f'<span style="color:#9090b0;margin-right:4px">⊞</span>{ciu}</td>{cm}</tr>')
 
     # ── FILA TOTAL ──────────────────────────────────────────────────────────
-    tm=[]; ta=tu=tl=0
+    tm=[]; ta=tu=tl=0; tum=tqm=0
     for f in fechas:
         fr=tot_agg[tot_agg["fd"]==f]
         if fr.empty: tm.append((0,0,0,0))
         else:
             a=fr["Ab"].sum(); u=fr["Us"].sum(); l=fr["Li"].sum()
-            tm.append((a,u,l, u/a if a>0 else 0)); ta+=a; tu+=u; tl+=l
-    tm.append((ta,tu,tl, tu/ta if ta>0 else 0))
+            um=fr["UM"].sum(); qm=fr["QM"].sum()
+            uso = round(um / qm, 2) if qm > 0 else 0
+            if uso < 0: uso = 0
+            tm.append((a,u,l, uso))
+            ta+=a; tu+=u; tl+=l; tum+=um; tqm+=qm
+            
+    uso_tot = round(tum / tqm, 2) if tqm > 0 else 0
+    if uso_tot < 0: uso_tot = 0
+    tm.append((ta,tu,tl, uso_tot))
 
     body += (f'<tr style="background:#cce5ff;border-top:2px solid #7aa8d4">'
              f'<td style="font-weight:700;color:#003366;padding:7px 10px;font-size:.8rem">Total</td>'
