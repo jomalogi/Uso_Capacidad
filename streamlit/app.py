@@ -167,10 +167,15 @@ def enriquecer(df):
 
     # DAX exacto
     qm = pd.to_numeric(df["quota_mins"], errors="coerce")
+    used_mins = pd.to_numeric(df["used"], errors="coerce").fillna(0)
     mt = df["Min_Trabajo"]
     df["Cupos_Abiertos"] = np.where((mt > 0) & qm.notna(), qm / mt, 0)
     df["Cupos_Usados"]   = pd.to_numeric(df["booked_activities"], errors="coerce").fillna(0)
-    df["Cupos_Libres"]   = df["Cupos_Abiertos"] - df["Cupos_Usados"]
+    
+    # Nueva fórmula de Libres: Redondeado de (quota_mins - used) / Min_Trabajo, sin bajar de 0
+    libres_calc = np.where((mt > 0) & qm.notna(), (qm - used_mins) / mt, 0)
+    df["Cupos_Libres"]   = np.maximum(np.round(libres_calc), 0)
+    
     df["Uso_Cap"]        = np.where(df["Cupos_Abiertos"]>0,
                                      df["Cupos_Usados"]/df["Cupos_Abiertos"], 0)
     df["fecha"]          = pd.to_datetime(df["fecha"])
