@@ -172,9 +172,9 @@ def enriquecer(df):
     df["Cupos_Abiertos"] = np.where((mt > 0) & qm.notna(), qm / mt, 0)
     df["Cupos_Usados"]   = pd.to_numeric(df["booked_activities"], errors="coerce").fillna(0)
     
-    # Nueva fórmula de Libres: Redondeado de (quota_mins - used) / Min_Trabajo, sin bajar de 0
+    # Nueva fórmula de Libres: (quota_mins - used) / Min_Trabajo, sin bajar de 0
     libres_calc = np.where((mt > 0) & qm.notna(), (qm - used_mins) / mt, 0)
-    df["Cupos_Libres"]   = np.maximum(np.round(libres_calc), 0)
+    df["Cupos_Libres"]   = np.maximum(libres_calc, 0)
     
     # Nueva fórmula de Uso Capacidad: used / quota_mins (redondeado, mínimo 0)
     uso_cap_calc = np.where(qm > 0, used_mins / qm, 0)
