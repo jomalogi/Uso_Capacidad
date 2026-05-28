@@ -501,7 +501,7 @@ def render_pagina(df_full, titulo, filtro_extra=None, aplicar_filtro_uso=False):
     # Fila 3: sub-métricas
     h_met = ""
     for _ in range(nf + 1):
-        for m,w in [("Abiertos","65px"),("Usados","65px"),("Libres","80px"),("Uso Capacidad","130px")]:
+        for m,w in [("Abiertos by Cuotas","110px"),("Usados Liberados","110px"),("Libres Reales","90px"),("Uso Capacidad","130px")]:
             bl = "border-left:2px solid #a0c4e8;" if _ < nf else "border-left:3px solid #6aab8e;"
             h_met += (f'<th style="min-width:{w};text-align:right;background:#E0F7FF;color:#1a3a6f;'
                       f'{bl}padding:5px 8px;font-size:.65rem;font-weight:700;white-space:nowrap;border-bottom:1px solid #b8d4e8">'
