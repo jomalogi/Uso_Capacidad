@@ -15,7 +15,12 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-DB = dict(host="186.147.60.119", port=3309, database="ofsc_cupos",
+import os
+
+DB_HOST = os.environ.get("DB_HOST", "ofsc_cupos_db")
+DB_PORT = int(os.environ.get("DB_PORT", 3306))
+
+DB = dict(host=DB_HOST, port=DB_PORT, database="ofsc_cupos",
           user="ofsc_user", password="Capacidades*", connection_timeout=30)
 
 # ── TABLAS FIJAS ──────────────────────────────────────────────────────────────
