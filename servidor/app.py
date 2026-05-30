@@ -6,11 +6,13 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-DB_HOST = "186.147.60.119"
-DB_PORT = 3309
-DB_NAME = "ofsc_cupos"
-DB_USER = "ofsc_user"
-DB_PASS = "Capacidades*"
+import os
+
+DB_HOST = os.environ.get("DB_HOST", "ofsc_cupos_db")
+DB_PORT = int(os.environ.get("DB_PORT", 3306))
+DB_NAME = os.environ.get("DB_NAME", "ofsc_cupos")
+DB_USER = os.environ.get("DB_USER", "ofsc_user")
+DB_PASS = os.environ.get("DB_PASS", "Capacidades*")
 
 TIMESLOT_RE = re.compile(r"^\d{2}[:\-]\d{2}")
 
