@@ -104,6 +104,12 @@ TABLA_FTTH = pd.DataFrame([
     ("Zarzal CONECTAR",              "VACANA",  "No","Si"),
 ], columns=["Categoria","Territorio","Meta_Modernizacion","Ciudad_tiene_FTTH"])
 
+ZONAS_SOLO_FTTH = [
+    "Andalucia CONECTAR", "Caicedonia CONECTAR", "Cartago CONECTAR",
+    "Guamo CONECTAR", "Ipiales CICSA", "La Union CONECTAR", "Pitalito CICSA",
+    "Roldanillo CONECTAR", "Sevilla CONECTAR", "Zarzal CONECTAR", "Garzon CICSA"
+]
+
 FRANJAS_MAP = {
     "07-13":"AM","13-18":"PM","07-18":"ALL DAY","14-20":"PM","18:00-20:30":"PM",
     "07-10":"AM","01-06":"AM","06-10":"AM","07-09":"AM","08-10":"AM",
@@ -169,6 +175,10 @@ def enriquecer(df):
     df["Aliado_Final"]       = df["zona"].apply(lambda z:
         "CONECTAR TV" if "CONECTAR" in str(z).upper()
         else ("TABASCO" if "CICSA" in str(z).upper() else ""))
+
+    # Excluir registros de HFC erróneos en ciudades que son exclusivas de FTTH
+    mask_hfc_invalido = (df["Red"] == "HFC") & (df["zona"].isin(ZONAS_SOLO_FTTH))
+    df = df[~mask_hfc_invalido].copy()
 
     # DAX exacto
     qm = pd.to_numeric(df["quota_mins"], errors="coerce")
@@ -333,11 +343,7 @@ FILTROS_PAGINA = {
     "Instalaciones HFC": {
         "Tipo_Orden": ["Instalaciones","Instalaciones Básica"],
         "Red":        ["HFC"],
-        "_excluir_zona": [
-            "Andalucia CONECTAR","Caicedonia CONECTAR","Cartago CONECTAR",
-            "Guamo CONECTAR","Ipiales CICSA","La Union CONECTAR","Pitalito CICSA",
-            "Roldanillo CONECTAR","Sevilla CONECTAR","Zarzal CONECTAR","Garzon CICSA",
-        ],
+        "_excluir_zona": ZONAS_SOLO_FTTH,
     },
     "Arreglos":       {"Tipo_Orden": ["Arreglos"]},
     "Posventas":      {"Tipo_Orden": ["Posventas"]},
