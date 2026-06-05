@@ -25,7 +25,7 @@ DB = dict(host=DB_HOST, port=DB_PORT, database="ofsc_cupos",
 
 # ── TABLAS FIJAS ──────────────────────────────────────────────────────────────
 TRABAJOS = pd.DataFrame([
-    ("Brownfield",              150, "FTTH", "Bronwfield"),
+    ("Brownfield",              180, "FTTH", "Bronwfield"),
     ("HFC  Arreglos Pymes",     90,  "HFC",  "Arreglos"),
     ("HFC  Instalacion Pymes",  180, "HFC",  "Instalaciones"),
     ("Instalacion FTTH",        150, "FTTH", "Instalaciones"),
@@ -33,7 +33,7 @@ TRABAJOS = pd.DataFrame([
     ("Postventa  FTTH",         75,  "FTTH", "Posventas"),
     ("Traslado FTTH",           150, "FTTH", "Traslados"),
     ("HFC  Traslados pymes",    180, "HFC",  "Traslados"),
-    ("Brownfield Flash",        150, "FTTH", "Bronwfield"),
+    ("Brownfield Flash",        180, "FTTH", "Bronwfield"),
     ("Instalaciones Básicas Estándar",        75,  "HFC",  "Instalaciones Básica"),
     ("Instalaciones Empaquetadas Estándar",   150, "HFC",  "Instalaciones"),
     ("Maintenance",             75,  "HFC",  "Arreglos"),
