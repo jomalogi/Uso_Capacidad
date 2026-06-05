@@ -269,10 +269,14 @@ with st.sidebar:
         if f.strftime("%Y-%m") in mes_sel
     ], reverse=True)
 
+    hoy_cot = datetime.now(timezone(timedelta(hours=-5))).date()
+    fechas_futuras = [f for f in fechas_en_mes if f >= hoy_cot]
+    default_fechas = fechas_futuras if fechas_futuras else (fechas_en_mes[:1] if fechas_en_mes else [])
+
     st.markdown("**📅 Días**")
     fechas_sel = st.multiselect("",
         options=fechas_en_mes,
-        default=fechas_en_mes,
+        default=default_fechas,
         format_func=lambda d: d.strftime("%d/%m/%Y (%a)"),
         placeholder="Todos los días del mes",
         label_visibility="collapsed")
