@@ -69,7 +69,7 @@ TRABAJOS = pd.DataFrame([
 # Solo nombres exactos como están en MySQL campo zona (sin duplicados)
 TABLA_FTTH = pd.DataFrame([
     ("Andalucia CONECTAR",           "VACANA",  "No","Si"),
-    ("Buga CONECTAR",                "VACANA",  "No","Si"),
+    ("Buga CONECTAR",                "VACANA",  "Si","Si"),
     ("Caicedonia CONECTAR",          "VACANA",  "No","Si"),
     ("CALI NORTE CONECTAR",          "CALI",    "Si","Si"),
     ("CALI SUR CICSA",               "CALI",    "Si","Si"),
@@ -80,7 +80,7 @@ TABLA_FTTH = pd.DataFrame([
     ("Ciudad del Campo CONECTAR",    "VACANA",  "No","No"),
     ("Espinal CONECTAR",             "TOLHUCA", "No","No"),
     ("Flandes CONECTAR",             "TOLHUCA", "No","No"),
-    ("Florencia CONECTAR",           "TOLHUCA", "No","Si"),
+    ("Florencia CONECTAR",           "TOLHUCA", "Si","Si"),
     ("Florida CONECTAR",             "VACANA",  "No","No"),
     ("Garzon CICSA",                 "TOLHUCA", "No","Si"),
     ("Guamo CONECTAR",               "TOLHUCA", "No","Si"),
@@ -95,11 +95,11 @@ TABLA_FTTH = pd.DataFrame([
     ("Pitalito CICSA",               "TOLHUCA", "No","Si"),
     ("Popayan CICSA",                "VACANA",  "Si","Si"),
     ("Pradera CONECTAR",             "VACANA",  "No","No"),
-    ("Puerto Tejada CICSA",          "VACANA",  "No","Si"),
+    ("Puerto Tejada CICSA",          "VACANA",  "Si","Si"),
     ("Roldanillo CONECTAR",          "VACANA",  "No","Si"),
-    ("Santander de Quilichao CICSA", "VACANA",  "No","No"),
+    ("Santander de Quilichao CICSA", "VACANA",  "Si","No"),
     ("Sevilla CONECTAR",             "VACANA",  "No","Si"),
-    ("Tulua CONECTAR",               "VACANA",  "No","Si"),
+    ("Tulua CONECTAR",               "VACANA",  "Si","Si"),
     ("Yumbo CONECTAR",               "CALI",    "Si","Si"),
     ("Zarzal CONECTAR",              "VACANA",  "No","Si"),
 ], columns=["Categoria","Territorio","Meta_Modernizacion","Ciudad_tiene_FTTH"])
@@ -335,7 +335,7 @@ dff = df[mask].copy()
 
 # ── FILTROS POR PÁGINA (del PBIX) ────────────────────────────────────────────
 FILTROS_PAGINA = {
-    "Meta Modernización": {
+    "Brownfield": {
         "Tipo_Orden":         ["Bronwfield"],
         "Meta_Modernizacion": ["Si"],
     },
@@ -640,7 +640,7 @@ header_html = f"""
 st.markdown(header_html, unsafe_allow_html=True)
 
 # ── TABS ──────────────────────────────────────────────────────────────────────
-paginas = ["Meta Modernización","Instalaciones FTTH","Instalaciones HFC",
+paginas = ["Brownfield","Instalaciones FTTH","Instalaciones HFC",
            "Arreglos","Posventas","General FTTH","Total Trabajos","Pymes"]
 
 tabs = st.tabs(paginas)

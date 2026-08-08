@@ -32,9 +32,9 @@ services:
     environment:
       DB_HOST: ofsc_cupos_db
       DB_PORT: 3306
+      DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ofsc_cupos
       DB_USER: ofsc_user
-      DB_PASS: "Capacidades*"
       AGENTE_SECRET: "ofsc_secret_2024"
     volumes:
       - ofsc_tmp:/tmp
