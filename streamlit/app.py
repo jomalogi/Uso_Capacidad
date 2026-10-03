@@ -500,7 +500,7 @@ def render_pagina(df_full, titulo, filtro_extra=None, aplicar_filtro_uso=False):
     # Fila 2: Fecha/Gerencia + bloques de fechas + Total
     h_sub = '''<th rowspan="2" style="background:#E0F7FF;color:#1a3a6f;text-align:center;
                   vertical-align:bottom;min-width:210px;padding:7px 10px;
-                  border:1px solid #b8d4e8;font-size:.72rem;font-weight:700">
+                  border:1px solid #b8d4e8;font-size:.72rem;font-weight:700;position:sticky;left:0;z-index:3">
         Fecha<br>Gerencia
     </th>'''
     for f in fechas:
@@ -533,7 +533,7 @@ def render_pagina(df_full, titulo, filtro_extra=None, aplicar_filtro_uso=False):
         gc     = GER_COLORS[gi % len(GER_COLORS)]
         gm     = cells_html(get_met(ger_agg,{"Gerencia":ger}), bold=True)
         body  += (f'<tr style="background:{gc};cursor:pointer;border-top:1px solid #c8c0e0" onclick="tog(\'{gid}\')">' 
-                  f'<td style="font-weight:700;color:#2d1f6e;padding:7px 10px;white-space:nowrap;font-size:.78rem">'
+                  f'<td style="font-weight:700;color:#2d1f6e;padding:7px 10px;white-space:nowrap;font-size:.78rem;position:sticky;left:0;z-index:1;background:{gc}">'
                   f'<span id="ic_{gid}" style="display:inline-block;width:16px;font-size:.65rem;color:#6a5acd">⊟</span>'
                   f'&nbsp;{ger}</td>{gm}</tr>')
         ciudades = sorted(d[d["Gerencia"]==ger]["zona"].dropna().unique())
@@ -541,7 +541,7 @@ def render_pagina(df_full, titulo, filtro_extra=None, aplicar_filtro_uso=False):
             cm    = cells_html(get_met(ciu_agg,{"Gerencia":ger,"zona":ciu}))
             bg_ciu = "#ffffff" if ci % 2 == 0 else "#f7f7fb"
             body += (f'<tr class="c_{gid}" style="background:{bg_ciu};border-top:1px solid #ece9f0">'
-                     f'<td style="padding:5px 10px 5px 30px;color:#444;font-size:.74rem;white-space:nowrap">'
+                     f'<td style="padding:5px 10px 5px 30px;color:#444;font-size:.74rem;white-space:nowrap;position:sticky;left:0;z-index:1;background:{bg_ciu}">'
                      f'<span style="color:#9090b0;margin-right:4px">⊞</span>{ciu}</td>{cm}</tr>')
 
     # ── FILA TOTAL ──────────────────────────────────────────────────────────
@@ -562,7 +562,7 @@ def render_pagina(df_full, titulo, filtro_extra=None, aplicar_filtro_uso=False):
     tm.append((ta,tu,tl, uso_tot))
 
     body += (f'<tr style="background:#cce5ff;border-top:2px solid #7aa8d4">'
-             f'<td style="font-weight:700;color:#003366;padding:7px 10px;font-size:.8rem">Total</td>'
+             f'<td style="font-weight:700;color:#003366;padding:7px 10px;font-size:.8rem;position:sticky;left:0;z-index:1;background:#cce5ff">Total</td>'
              f'{cells_html(tm, bold=True, is_total=True)}</tr>')
 
     # ── ALTURA DINÁMICA ─────────────────────────────────────────────────────
