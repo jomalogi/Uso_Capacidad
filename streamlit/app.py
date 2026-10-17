@@ -351,6 +351,9 @@ FILTROS_PAGINA = {
     },
     "Arreglos":       {"Tipo_Orden": ["Arreglos"]},
     "Posventas":      {"Tipo_Orden": ["Posventas"]},
+    "Traslados": {
+        "categoria": ["Transfers", "Traslado FTTH"],
+    },
     "General FTTH": {
         "Red":               ["FTTH"],
         "Ciudad_tiene_FTTH": ["Si"],
@@ -641,7 +644,8 @@ st.markdown(header_html, unsafe_allow_html=True)
 
 # ── TABS ──────────────────────────────────────────────────────────────────────
 paginas = ["Brownfield","Instalaciones FTTH","Instalaciones HFC",
-           "Arreglos","Posventas","General FTTH","Total Trabajos","Pymes"]
+           "Arreglos","Posventas",
+    "Traslados","General FTTH","Total Trabajos","Pymes"]
 
 tabs = st.tabs(paginas)
 for tab, pag in zip(tabs, paginas):
